@@ -1,0 +1,33 @@
+@import "fonts";
+
+body{
+  // background-color: #000;
+  // background: url("@img/cover.jpg") 0 0 no-repeat;
+  font-family: CormorantUpright;
+  font-size: 50px;
+  span {
+    color: red;
+  }
+  // background: url(../img/cover.jpg) 0 0 no-repeat;
+}
+
+// @supports (-webkit-appearance: none) {
+//   body {
+//     background: url(../img/icons/close.svg) 0 0 no-repeat;
+//   }
+//   .block {
+//     background: url(../img/cover.webp) 0 0 no-repeat;
+//   }
+// }
+
+// @media (max-width: 768px) {
+//   span {
+//     font-size: 20px;
+//   }
+// }
+
+// @media (max-width: 768px) {
+//   body {
+//     background-color: green;
+//   }
+// }

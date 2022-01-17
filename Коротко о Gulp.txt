@@ -1,0 +1,409 @@
+Жекин Gulp - https://www.youtube.com/watch?v=jU88mLuLWlk
+1) npm init (Везде Ентер кроме author: Leska; b Is this OK? (yes) y). После в package.json вручную изменил инфу - "main": "gulpfile.js", "type": "module",
+2) npm i gulp-cli (На видео блогер волшебник, поставил не чайно в конце -g).
+3) npm i gulp -D /*Его лучше раньше gulp-cli поставить.*/
+Создание папок и файлов.
+-gulpfile.js
+-src
+/*Создаём ему файлы после импорта copy.js в gulpfile.js*/
+/->files
+/./->test.txt
+-gulp(папка)
+->config 
+/->path.js
+/->plugins.js
+/->ftp.js
+->tasks
+/->copy.js
+
+-*gulp запускаем после создания test.txt
+**** В Терминале загрузилось
+Using gulpfile `\и др
+Starting 'default'...
+Finished 'default' after 29 ms
+****
+/*Появилась папка dist->files->test.txt*/
+
+/*В src когда появлялся новый файл, в пример test2.txt(src/files) для появления в dist(files) мы в Терминале вызывали gulp.
+/*После написание наблюдателя и сценариев в path.js(config) и gulpfile.js
+
+-*запускаем gulp
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'copy'...
+Finished 'copy' after 30 ms
+Starting 'watcher'...
+****
+
+/*И теперь будеть новый файл автоматически попадать в dist(files) как сейчас попал test3.txt. Проблема если мы удалим test3.txt(src/files), то после вызова gulp test3.txt(dist/files) останется. И таких удалёных будет dist копить. Решение проблемы очистка перед каждым выполнением задачи.В папке tasks создаём файл reset.js*/
+/*На видео до reset.js(tasks) каким то чудом в папке tasks появился файл html.js*/
+/*В reset.js(tasks) подключаем плагин del*/
+4) npm i -D del
+/*Дописываем reset в файле gulpfile.js*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 21 ms
+Starting 'copy'...
+Finished 'copy' after 52 ms
+Starting 'watcher'...
+****
+-удалился(сам исчез) test3.txt(dist/files)
+
+/*Создаём в src файл index.html*/
+/*В path.js(config) пишем ценарий для html*/
+/*Создаём в src папку html*/
+-html(папка)
+->header.html
+->footer.html
+->head.html 
+/*А вот здесь он теперь создал в tasks файл html.js*/
+/*Дописываем html в файле gulpfile.js*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 45 ms
+Starting 'copy'...
+Starting 'html'...
+Finished 'html' after 91 ms
+Finished 'copy' after 99 ms
+Starting 'watcher'...
+****
+/*Появился в папке dist файл index.html*/
+
+Правда файл index.html выглялит как в папке исходников(в src файл index.html). Для того чтобы файл собирался, нам нужен плагин gulp-file-include (видео 28:50).
+5) npm i -D gulp-file-include
+/*Импортируем его в html.js, пишем ему import и вызов fileInclude...*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 23 ms
+Starting 'copy'...
+Starting 'html'...
+Finished 'html' after 62 ms
+Finished 'copy' after 66 ms
+Starting 'watcher'...
+****
+/*Результат в dist файл index.html, собрал все части что было.*/
+
+/*Теперь с дублируем index.html(src) и переименуем в about.html(src)*/
+index.html(src)->Сохранить как->about.html
+Лучше gulp запустить about.html(src) автоматически появиться(без запуска глучить) в about.html(dist) и Терминал дописывает результат gulp-а.
+
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 23 ms
+Starting 'copy'...
+Starting 'html'...
+Finished 'html' after 62 ms
+Finished 'copy' after 66 ms
+Starting 'watcher'...
+/*дописал*/
+Starting 'html'...
+Finished 'html' after 15 ms
+Starting 'html'...
+Finished 'html' after 31 ms
+Starting 'html'...
+Finished 'html' after 41 ms
+****
+
+/*Создаём в src папку img, вставляем ей изображение*/
+/*Файл index.html(dist) скомпилировался*/
+/*В header.js(src) поставим img картинку. Что получится из вложенной папки? У нас в index.html(dist) будут разные пути. Потому что header на ходится в папке html(src) поэтому его картинке мы пишем ../img/картинка*/ . Из-за этого что-то будет не правильно работать, решаем проблему в 2 этапа. 
+Первый этап настройка самого редактора. 
+VS-code жмём с лево Расширение(CTRL+SHIFT+X)->пишем название плагина Path Autocomplete->Установить->F1->в поиск вбиваем Open Settetings(JSON)->открылся файл settings.json->пишем настройки path-autocomplete.pathMappings 
+В index.html переделываем <img src="img/cover.jpg"> на <img src="@img/cover.jpg">. Таким образом редактор(/) правильно видит в какой папке находиться картинка. Если мы также переделаем во вложенном файле(src/html/header), то и там редактор(/) правильно увидит в какой папке находиться картинка. Тут появляется другая проблема, дело в том что не один браузер в собранном файле index.html(dist) не распознает @img/ . Поэтому переходим ко второму этапу.
+Второй этап в html.js нужно использовать новые классы и плагины. Но новые классы и плагины мы будем использовать не только для html файлов но и для других файлов. Здесь мы настроим подругому.
+-gulp(папка)
+->config 
+/->plugins.js (Внутри подключаем gulp-replace)
+5) npm i -D gulp-replace
+/*Создаём для gulp-replace в plugins.js(в папке gulp) экспорт(export)*/
+/*В gulpfile.js(src) подключаем plugins.js и передаем его в global.app*/
+/*В html.js(gulp) вызываем плагин replace внутри него мы будем искать все входные вот этой записи -> @img/ и менять на то что нам нужно -> img/ */
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Using gulpfile ~\и др
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 22 ms
+Starting 'copy'...
+Starting 'html'...
+Finished 'html' after 71 ms
+Finished 'copy' after 73 ms
+Starting 'watcher'...
+****
+
+/*В index.html(dist) у нас и в обычном и вложеном стало img/cover.jpg. И оно теперь в будущем будет без проблем отображаться на сайте. Второй этап сделали.*/
+
+/*В html.js(gulp) подключаем плагин gulp-webp-html-nosvg, он будет обрабатывать картинки с отличием nosvg а не все подряд. Автоматически будет уменьшать её вес без потери качества*/
+6) npm i -D gulp-webp-html-nosvg
+/*В html.js(gulp) через pipe вызываем этот плагин webpHtmlNosvg*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****
+
+/*В index.html(dist) у нас картинки обернулись в коробочку <picture><source srcset="img/cover.webp" type="image/webp"><img src="img/cover.jpg" alt=""></picture>. Плагин отлично работает*/
+
+6) npm i -D gulp-version-number
+/*Он помогает избегать неприятных ситуаций с кэшированием*/
+/*В html.js(gulp) через pipe задаём задачу versionNumber*/
+/*В index.html(src) подключаем <script src="js/app.min.js"></script>*/
+import webpHtmlNosvg from "gulp-webp-html-nosvg"; href="css/style.min.css">*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****
+/*В папке gulp создался файл version.json, мы также увидели изменения в файле index.html(dist) 
+<link rel="stylesheet" href="css/style.min.css?_v=20211226210855">
+<script src="js/app.min.js?_v=20211226210855"></script> . Готов!*/
+
+/*В plugins.js(в папке gulp) пишем импорт плагина gulp-plumber, он помогает обработать надвигающие ошибки для работы с имеными файлами. Также у него уже стоял импорт на плагин gulp-notify, он выводит ошибки*/
+7) npm i -D gulp-plumber gulp-notify
+/*В html.js добавляем обращение к плагинам plumber и notify, и выводит при ошибке сообщение в title: и в message: . При выводе ошибке она может появлятся не только в терминале, но они будут всплывать уведомлениями в винде*/
+/*Чтобы убедится что включено уведомление в винде, на часах жмём(43:34)
+ПКМ->Настройка значков уведомлений->"Уведомления и действия" ползунок у "Получать уведомления от приложений и других отправителей" должен Включен.*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****
+/*Теперь наши ошибки нас уведомлять Error: ENOENT: no such ... и справа увидим от винды значок Gulp-а*/
+
+/*Создаём файл index.pug(src) в формате .pug . В index.pug(src) он подключил несколько частей из папки html. footer.pug(html) и header.pug(html)*/
+/*В path.js(config) поставил переход из .html в формат .pug. Он просто изменил html: `${srcFolder}/*.html` на html: `${srcFolder}/*.pug` и так же у html: `${srcFolder}/**/*.html` на html: `${srcFolder}/**/*.pug`*/
+/*В html.js(gulp) пишем импорт gulp-pug и всё что надо для подключения*/
+/*Подключаем плагин */
+8) npm i -D gulp-pug
+/*За коментировад в html.js(gulp) .pipe(fileInclude()), он больше нам не нужен. Вместо него мы добавили вызов .pipe(pug({...}))*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****
+/*Теперь в index.html(dist) у нас присуствует pug. Он потом pug отключил*/
+
+/*В plugins.js(gulp) пишем импорт browser-sync*/
+/*Подключаем плагин */
+9) npm i -D browser-sync (видео 45:50)
+/*Дальше делаем два шага. Первый шаг это чтобы при запуске gulp открывался браузер именно нашу страницу. И второй шаг доработать задачу html для того чтобы  прилюбых изменениях браузер обновлял нам страницу*/
+/*В папке tasks.js(gulp) создаём файл server.js. В файле server.js(tasks) пишим функцию browsersync.init. В gulpfile.js(src) подключаем задачу server.js(tasks)*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Using gulpfile ~\Desktop\gulp-2022\gulpfile.js
+Starting 'default'...
+Starting 'reset'...
+Finished 'reset' after 61 ms
+Starting 'copy'...
+Starting 'html'...
+Finished 'copy' after 38 ms
+compiling file C:\Users\User\Desktop\gulp-2022\src\index.html
+[gulp-version-number] Output to file: gulp/version.json
+Finished 'html' after 276 ms
+Starting 'watcher'...
+Starting 'server'...
+[Browsersync] Access URLs:
+ -------------------------------------
+       Local: http://localhost:3000
+    External: http://192.168.0.52:3000
+ -------------------------------------
+          UI: http://localhost:3001
+ UI External: http://localhost:3001
+ -------------------------------------
+[Browsersync] Serving files from: ./dist/
+****
+
+/*Браузер у нас открылся, но он ещё пока ничего обновлять не будет. Потому что нужно ещё отработать задач в html.js(gulp), пишим в html.js(gulp) browsersync.stream()*/
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*Попробуем что-то изменить, в пример в index.html он картинку удалил, вместо неё написал Привет!*/
+
+/*В header.html(src) он картинку удалил, вместо неё написал Я шапка!*/
+/*Теперь пишем обработку SASS/SCSS/CSS файлов в path.js(config) в разделе src: в scss:... . Подгружаем результат в build: в css:..., наблюдаем за всеми файлами в watch: в scss:...*/
+/*Пути настроены, займёмся самой задачей. В папке tasks создаём файл scss.js. Пишем в ней простую задачу с не большим заполнением. sourcemaps покажет в Дефтульсе в каком файле допущена ошибка*/
+10) npm i -D gulp-sass sass 
+/*В файле scss.js(tasks). Напишем задачу для обработки ошибок и уведомление о них в Терминале.*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+
+/*В папке src создаём папку scss и в ней создаём файл style.scss. Написал стили для body*/
+/*В index.html(src) он удалил Привет! и в span поставил рыбный текст*/
+/* В scss.js(tasks) ставим плагин gulp-rename и поставим в трубу extname чтобы он переименовал style.scss в style.min.css и вызывался он*/
+11) npm i -D gulp-rename
+/*Плагин gulp-rename установили, теперь перед запуском галпа добавляем нашу задачу в gulpfile.js(src)*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*Запустился результат наших стилей, чёрный фон с красным текстом. В dist появилась папка css с отработаным файлом style.min.css*/
+
+/*Теперь прокачаем наши стили добавим 4шт. плагинов. В scss.js(tasks) добавим 4шт. импортов*/
+12) npm i -D gulp-clean-css gulp-webpcss gulp-autoprefixer gulp-group-css-media-queries
+/*Добавляем плагинам трубы(pipe) в scss.js(tasks).*/
+/*У gulp-webpcss есть альтернативный плагин gulp-webp-css. Который определяет картинку с помощью медиа запроса, у нас @supports. В style.scss изменил стили на картинки close.svg и cover.webp(Бодров). У gulp-webp-css есть два основных не достатка. Во первых он svg изображение туда же интегрирует, который в этом не нуждается. Во вторых в браузере Сафари ничерта не работает, на всяких Айфонах и прочих яблочных. Поэтому мы используем плагин gulp-webpcss, но здесь тоже придётся с бубном по танцевать. Во первых мы должны добавить определёный js код webpClass: ".webp", noWebpClass: ".no-webp". Чтобы он определял поддерживает браузер изображение или нет. И второе gulp-webpcss не запуститься без плагина webp-converter@2.2.3, устанавливаем имено эту версию.*/
+13) npm i -D webp-converter@2.2.3
+/*В scss.js(tasks) .pipe(cleanCss())//2.Сжатие пишем последним(четвёртым)*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+Ни каких ошибок нет. Но Жека опять вернул стили фон и спан (на видео результат 1:01:15)
+****/
+/*В папке dist появился файл style.css и сжал всё в файле style.min.css*/
+
+/*В style.scss(src) написали код(background: url(../img/cover.jpg) 0 0 no-repeat;) для картинки чтобы проверит как выйдет в style.scss(dist). А вышло так .no-webp body { background: url(../img/cover.jpg) 0 0 no-repeat; } это для тех браузеров которые не поддерживают картинку. А так .webp body { background: url(../img/cover.webp) 0 0 no-repeat; } для тех браузеров которые поддерживают картинку.*/
+/*Теперь как будет с медиа запросом, в style.scss(src) написали на ширине экрана (768px) стили для body и span @media (max-width: 768px) { span { font-size: 20px; } }
+@media (max-width: 768px) { body { background-color: green; } } 
+В style.css(dist) вышло так @media (max-width: 768px) { span { font-size: 20px; } body { background-color: green; } }*/
+
+/*Теперь займёмся с js файлами. В path.js(config) в разделе src: подключаем файл app.js. Так же подгружаем файл в папку результатов(build:). Наблюдать(watch:) будем за всеми js файлами*/
+/*Далее в папке tasks создаём файл js.js, тут мы будем создавать задачу */
+/*В gulpfile.js(src) пишем в импорте задаче путь к файлу js.js(tasks), далее пишем в основной задаче js и пишем в наблюдатель js*/
+/*И в файле js.js(tasks) пишем экспорт(export). Одного гфлпа нам мало для js нам нужен webpack, пишем его импорт и устанавливаем плагин webpack-а*/
+14) npm i -D webpack webpack-stream
+/*Теперь создаём папкку js(src) и внутри него создаём наш файл app.js*/
+/*В файле app.js пишем console.log('Привет!');*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*Смотрим результат в девтульсе -> консоль -> Привет!*/
+
+/*Создаём папку modules(js), здесь будут храниться модульные файлы js. В пример мы создали в папке modules(js) файл functions.js*/
+/*https://fls.guru/gulp.html - JS-функция определения поддержки WebP*/
+/*Импортируем в файл app.js(src), удалил console.log('Привет!');. И опять в style.scss(src) вернул чёрный фон и красный текст*/
+/*Там же вызвал функцию isWebp(); которая нам нужна. В девтулсе явился class="webp" это потому что Хром поддерживает. Таким образом у нас будут работать файлы стилями. Таким образом мы можем в app.js(src) подключать модули, в пример слайдера.*/
+15) npm i -D swiper
+/*Перешли на сайт https://swiperjs.com/get-started . В разделе Install from NPM видем npm команду. Ниже на подключение импорта, скопируем эту строчку import Swiper, { Navigation, Pagination } from 'swiper'; в app.js(src). Подключив таким образом слайдер, с ним мы потом можем работать.*/
+
+/*В path.js(config) подключаем images, также он отдельно добавил путь к svg файлу. Папка результатов(build) общая, просто папка img. Наблюдаем(watch) за всеми файлами картинок*/
+/*В папке tasks(gulp) создаём новый(ую) файл(задачу) images.js и внутри её поставили нашу шаблонную функцию, сменив название на images. Для сжимание, редактирование и всякой автоматики добавляем два импорта плагина и устанавливаем их.*/
+16) npm i -D gulp-imagemin gulp-webp
+/*В gulpfile.js(src) пишем в импорте задаче путь к файлу images.js(tasks)*/
+/*В plugins.js(gulp) пишем в импорт плагин и устанавливаем его(gulp-newer). Он обрабатывает те изображения которых ещё нет в папке. Так увеличивается скорость нашей работы.*/
+17) npm i -D gulp-newer
+/*В images.js(tasks) пишем задачу newer. Это для того чтобы обрабатывать те которые есть или нет. Так же вызываем наш плагин webp.*/
+/*Поставил в папке img файл facebook.svg*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+-оптимизировал наше изображение- 
+gulp-imagemin: Minified 1 image (saved 1.67 kB - 14.9%)
+****/
+/*В папке dist файл facebook.svg так и остался стаким весом. А cover.jpg уменьшился во много раз, а в cover.webp ещё в несколько раз уменьшился. Это нам и нужно.*/
+
+/*У нас появилась папка(img) с результатом, теперь проверим как будет работать. В index.html(src) подключаем картинку. Рыбный текст он удалил.*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*В девтулсе вышла коробочка из picture. Хром поддерживает картинку.webp и именно она подгрузиться. В девтулсе -> Network показывает именно какой файл подгрузился.*/
+/*Снова убрал стили чёрного фона. Проверяем как будет изображение работать в стилях, добавляем в style.scss(src) body{background: url("@img/cover.jpg") 0 0 no-repeat;}. Наш хром поддерживает webp, в девтульсе вышло так .webp body {background: url(../img/cover.webp) 0 0 no-repeat;} В девтулсе -> Network показывает именно картинку.webp подгрузился.*/
+
+/*Автоматически конвертировать шрифты, а так же записывал подключение в webp версию. В path.js(config) подключаем fonts. Наблюдателя не ставим т.к они меняются редько. А папка с исходниками у нас будет каждый раз другая.*/
+/*В папке tasks создаём fonts.js, подключаем(импорт) в ней три плагина fs, gulp-fonter, gulp-ttf2woff2. fs - работает с файлами системы, он уже есть у нас в порту(Терминале). Его не надо устанавливать*/
+18) npm i -D gulp-fonter gulp-ttf2woff2
+/*В fonts.js(tasks) пишем три экспорта(три задачи).*/
+/*В gulpfile.js(src) пишем в импорте задаче путь к файлу fonts.js(tasks)*/
+/*Создал папку fonts(src) и для примера закинул шрифты*/
+
+-*запускаем gulp 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*В папке dist появилась папка fonts, в ней шрифты автоматически скомпилировали формат на .woff и .woff2. В папке fonts(src) у шрифта.otf появился брат шрифт.ttf. В папке scss появился файл fonts.scss, в нём у нас уже стили все автоматически подключились.*/
+
+/*В style.scss(src) подключаем шрифт(fonts) через импорт. В body он поставил рыбный текст и стали текста у него чёрного цвета.*/
+/*Делаем svgSprite это когда множество svg картинок хотим склеит в одну и потом вызывать каждую в удобном месте. В path.js(config) пишем svgicons, подгружается(build) она в images(он уже написан) и так же он и в наблюдателе(watch) есть.*/
+/*В папке tasks(gulp) создаём файл svgSprive.js, пишем в нём как обычно наш шаблон.*/
+19) npm i -D gulp-svg-sprite
+/*Создали папку svgicons(src), закинули картинки с форматом .svg*/
+/*Пишим импорт в golpfile.js - import { svgSprive } from ... . И пишем ей отдельный экспорт.*/
+/*Заходим в package.json в объекте scripts то что стоит меняем на "svgSprive": "gulp svgSprive"*/(на видео 1:29:00)
+
+-*запускаем npm run svgSprive 
+**** В Терминале загрузилось
+тоже самое
+****/ 
+/*В папке dist -> появилась в папке img -> папка icons с файлом icons.svg, он содержит в себе все иконки svg. Так же у нас появилась папка stack с файлом sprite.stack.html, здесь файл пример как эти иконки подключать.*/
+
+/*В package.json добавим стандартную команду("dev": "gulp") для запуска в режиме разработчика gulp*/
+
+-*запускать будем npm run dev 
+**** В Терминале загрузилось
+тоже самое
+****/
+
+/*Теперь разделим нашу работу нашего gulp-а на два режима: 1)в режим разработчика; 2)в режим продакшена. Для этого добавим в папке plugins.js(gulp) плагин gulp-if*/
+20) npm i -D gulp-if
+/*В gulpfile.js пишем в global.app режим разработчика(isDev) и режим продакшн(isBuild).*/
+/*В html.js(gulp) переделываем вызовы и так же переписываем в файле images.js(tasks).*/
+/*В scss.js(tasks) тоже переделываем. Меняем в sorcemaps: app.isDev. Тоже самое(sorcemaps) делаем и в файле js.js(tasks), в mode дописываем */
+/*В gulpfiles.js пишем ещё одну константу build(Продакшн).*/
+/*В package.json добавим новую задчу build возможность вызова галпа в режиме продакшн(build) с флагом --build*/
+
+-*запускаем npm run dev 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*Всё отлично в режиме разработки ни чего не сжато, не в img файлах(cover.jpg, facebook.svg) ни в app.min.js(js), то что нам нужно.*/ 
+
+/*Теперь проверим что у нас в режиме продакшн?*/
+
+-*запускаем npm run build 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*В продакшн(build) img файлы(cover.jpg, cover.webp, facebook.svg) в app.min.js(js) оптимизирован польностью, так же оптимизированы в других файлах.*/(видео клон 1:36:45)
+
+/*Теперь создаём zip архив нашего результата. В папке tasks создаём файл zip.js. Пишем ему задачу с не большими изменениями, и пишем импорт плагинов.*/
+21) npm i -D gulp-zip
+/*В gulpfiles.js оформляем zip*/
+/*В package.json добавим новую задачу zip возможность вызова галпа в режиме  deployZIP с флагом --build.*/
+
+-*запускаем npm run zip 
+**** В Терминале загрузилось
+тоже самое
+****/
+/*И появился архив gulp-2022.zip, внутри него все файлы нашего проекта уже скомпилированные. Это говорится что мы в режиме продакшн, этот архив можно отправит заказчику.*/
+
+
+
+/*******Это для Хоста*******/
+/*Сейчас заставим наши файлы отправляться на ftp сервер. Для этого в папке tasks создаём файл ftp.js. И первым делом подключаем конфигуционный файл(ftp.js) который находится в папке config. И устанавливаем два плагина.*/
+21) npm i -D vinyl-ftp gulp-util
+/*Пишем в ftp.js(tasks) задачу(export)*/
+/*В конфигуционном файле ftp.js(config) создаём объект*/
+/*В path.js(config) пишем в червячных кавычках test. Это означает что - Подключились к удалённому серверу, дальше заходим в папку test, дальше создадим папку проекта она у нас в gulp 1022 и туда зальём файлы результатов. (добавили test на видео 1:42:04)*/
+/*В gulpfiles.js добавляем задачу ftp*/
+/*В package.json добавим новую задачу deploy возможность вызова галпа в режиме  deployFTP с флагом --build.*/
+
+-*запускаем npm run deploy 
+**** В Терминале загрузилось
+тоже самое
+****/
